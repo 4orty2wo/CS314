@@ -1,7 +1,12 @@
 open List
 
 let rec cond_dup l f =
-  []
+    match l with
+    | [] -> []
+    | h::t -> if f h
+    then h :: (h :: cond_dup t f)
+    else h :: cond_dup t f
+;;
 
 let rec n_times (f, n, v) =
   0

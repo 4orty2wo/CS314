@@ -9,16 +9,45 @@ let rec cond_dup l f =
 ;;
 
 let rec n_times (f, n, v) =
-  0
+        if n <= 0 then v
+        else
+                n_times(f, n-1, f v);;
+;;
 
 let rec zipwith f l1 l2 =
-  []
+        (*
+        if List.length l1 > l2
+                then 
+                        match l2 with
+                        | [] -> l1
+                        | h::t 
+        else if List.length l1 < l2
+        else
+        *)
+        if List.hd l1 == [] || List.hd l2 == []
+        then []
+        else
+                (f (List.hd l1) (List.hd l2)) :: (zipwith f (List.tl l1) (List.tl l2))
+        (*
+        match (l1,l2) with
+        | ([],l2) -> []
+        | (l1,[]) -> []
+        | (h1::t1, h2::t2) -> (f h1 h2) :: (zipwith f t1 t2)
+        *)
+;;
 
 let buckets p l =
-  []
+        []
 
 let fib_tailrec n =
-  0
+   let rec fib_tail i prev cur = 
+           if i >= n
+           then prev
+           else
+                fib_tail (i+1) cur (cur+prev) in
+    fib_tail 0 0 1
+;;            
+
 
 let assoc_list lst =
   []

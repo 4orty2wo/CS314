@@ -24,7 +24,21 @@ def closest_to (l, v):
 #################
 
 def assoc_list (l):
-    return []
+    accessed = []
+    tupList = []
+    
+    for e in l:
+        if e in accessed:
+            continue
+        else:
+            accessed.append(e)
+            count = 0
+            for p in l:
+                if e == p: count += 1
+            tup = (e, count)
+            tupList.append(tup)
+    
+    return tupList
 
 #################
 ### Problem  3 ##

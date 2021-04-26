@@ -45,7 +45,24 @@ def assoc_list (l):
 #################
 
 def buckets (f, l):
-    return []
+    finalList = []
+    for i in range(len(l)):
+        tempList = []
+        tempList.append(l[i])
+        if not finalList: 
+            finalList.append(tempList)
+            continue
+        else:
+            flag = 0
+            for lst in finalList:
+                if f(l[i], lst[0]):
+                    flag = 1
+                    lst.append(tempList[0])
+                    break
+                else: continue
+            if flag == 1: continue
+            else: finalList.append(tempList)
+    return finalList
 
 
 ###################################

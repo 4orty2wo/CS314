@@ -109,7 +109,25 @@ class TreeNode:
 #################
 
 def level_order(root: TreeNode):
-    return []
+    
+    finalList = []
+    queue = []
+    queue.append(root)
+    nodes = 0
+    while queue:
+        tempList = []
+        nodes = len(queue)
+        while nodes != 0:
+            tempList.append(queue[0].val)
+            if queue[0].left:
+                queue.append(queue[0].left)
+            if queue[0].right:
+                queue.append(queue[0].right)
+            queue.pop(0)
+            nodes -= 1
+        finalList.append(tempList)
+
+    return finalList
 
 
 #################

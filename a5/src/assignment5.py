@@ -134,7 +134,27 @@ def level_order(root: TreeNode):
 ### Problem  5 ##
 #################
 
+
+
+
 def pathSum(root: TreeNode, targetSum: int) -> List[List[int]]:
+    path = []
+    pathList = []
+    def listPaths(root: TreeNode, path):
+        if not root:
+            return
+        
+        if root.left:
+            listPaths(root.left, path.append(root.left.val))
+        
+        if root.right:
+            listPaths(root.right,path.append(root.right.val))
+
+        if not root.left and not root.right:
+            pathList.append(path)
+
+    listPaths(root, path)
+    print(listPaths)
     return []
 
 

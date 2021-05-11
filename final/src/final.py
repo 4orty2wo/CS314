@@ -46,10 +46,18 @@ class Interpreter:
 	in the set is Variable.
 	'''
 	def variables_of_term (self, t : Term) -> set :
-		return set()
+		terms = set()
+		for x in t.terms:
+			if isinstance(x, Variable):
+				terms.add(x)
+		return terms
 
 	def variables_of_clause (self, c : Rule) -> set :
-		return set()
+		rules = set()
+		for x in c.head.terms:
+			if isinstance(x, Variable):
+				rules.add(x)
+		return rules
 
 
 	'''
@@ -65,9 +73,13 @@ class Interpreter:
 	Please use Python dictionary to represent a subsititution map.
 	'''
 	def substitute_in_term (self, s : dict, t : Term) -> Term:
+		for count, x in enumerate(t.terms):
+			t.terms[count] = s.get(x,x)
 		return t
 
 	def substitute_in_clause (self, s : dict, c : Rule) -> Rule:
+		for count, x in enumerate(c.head.terms):
+			c.head.terms[count] = s.get(x,x)
 		return c
 
 

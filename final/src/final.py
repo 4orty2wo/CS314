@@ -95,8 +95,55 @@ class Interpreter:
 
 	Please use Python dictionary to represent a subsititution map.
 	'''
-	def unify (self, t1: Term, t2: Term) -> dict:
-		return {}
+	def unify (self, tt1: Term, tt2: Term) -> dict:
+		s = dict({})
+		
+		if type(tt1) is list: t1 = tt1[0]
+		else: t1 = tt1
+		if type(tt2) is list: t2 = tt2[0]
+		else: t2 = tt2
+
+		if isinstance(t1, Variable):
+			if t1 != t2:
+				s[t1] = t2
+				return s
+		elif isinstance(t2, Variable):
+			if t2 != t1:
+				s[t2] = t1
+				return s
+		elif ( isinstance(t1, Variable) and isinstance(t2, Variable) ) or ( isinstance(t2, Atom) and isinstance(t1, Atom) ) or ( isinstance(t1, Number) and isinstance(t2, Number) ):
+			if t1 == t2:
+				return s
+			else: 
+				raise Not_unifiable
+		elif isinstance(t1, Function) and isinstance(t2, Function):
+			#s.update(self.unify( t1.terms[0:], t2.terms[0:] ))
+			reduce(f, self.unify( t1.terms[0:], t2.terms[0:] ))
+			return s
+		else:
+			raise Not_unifiable
+		"""
+		if isinstance(t1, Variable) or isinstance(t2, Variable):
+			if t1 != t2:
+				if not isinstance(t2, Variable):
+					s[t1] = t2
+				else:
+					s[t2] = t1
+			return s
+		elif t1 == t2 and isinstance(t1, Variable) and isinstance(t2, Variable):
+			return {}
+		elif t1 == t2 and isinstance(t1, Number) and isinstance(t2, Number):
+			return {}
+		elif t1 == t2 and isinstance(t1, Atom) and isinstance(t2, Atom):
+			return {}
+		elif isinstance(t1, Function) and isinstance(t2, Function):
+			for i in range(len(t1.terms)):
+				for j in range(len(t2.terms)):
+					s.update(self.unify( t1.terms[i], t2.terms[j] ))
+		else:
+			raise Not_unifiable
+		"""
+		return s
 
 
 	fresh_counter = 0

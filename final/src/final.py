@@ -117,8 +117,8 @@ class Interpreter:
 			else: 
 				raise Not_unifiable
 		elif isinstance(t1, Function) and isinstance(t2, Function):
-			#s.update(self.unify( t1.terms[0:], t2.terms[0:] ))
-			reduce(f, self.unify( t1.terms[0:], t2.terms[0:] ))
+			s.update(self.unify( t1.terms[0:], t2.terms[0:] ))
+			#reduce(f, self.unify( t1.terms[0:], t2.terms[0:] ))
 			return s
 		else:
 			raise Not_unifiable
@@ -172,6 +172,10 @@ class Interpreter:
 	a logical consequence of the program. See the tests cases (in src/main.py) as examples.
 	'''
 	def nondet_query (self, program : List[Rule], pgoal : List[Term]) -> List[Term]:
+		resolvent = pgoal
+		while resolvent:
+			rGoal = pgoal[random.randint(0,len(resolvent))]
+			self.freshen[program]
 		return []
 
 

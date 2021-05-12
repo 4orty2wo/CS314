@@ -140,7 +140,7 @@ if __name__ == '__main__':
 		g = [Function ("f", [Variable("X"), Atom("b")])]
 		print (f"Goal: {list2str(g)}")
 		g_ = interpreter.nondet_query (psimple, g)
-		assert (g_ == [Function ("f", [Atom("a"), Atom("b")])]);
+		assert (g_ == [Function ("f", [Atom("a"), Atom("b")])])
 		print (f"Solution: {list2str(g_)}")
 
 	def test_final_4_3():

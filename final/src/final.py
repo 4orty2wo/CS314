@@ -48,7 +48,9 @@ class Interpreter:
 	def variables_of_term (self, t : Term) -> set :
 		terms = set()
 		for x in t.terms:
-			if isinstance(x, Variable):
+			if isinstance(x, Function):
+				self.variables_of_term(x.terms)
+			elif isinstance(x, Variable):
 				terms.add(x)
 		return terms
 
@@ -73,10 +75,32 @@ class Interpreter:
 	Please use Python dictionary to represent a subsititution map.
 	'''
 	def substitute_in_term (self, s : dict, t : Term) -> Term:
+		
+		if not t:
+			return
+		if isinstance(t, Function):
+			new_terms = []
+			for term in t.terms:
+				new_terms.append(self.substitute_in_term(s,term))
+			return Function(t.relation,new_terms)
+		else:
+			"""
+			t[0] = s.get(t[0], t[0])
+			self.substitute_in_term(s, t[1:])
+			"""
+			if isinstance(t, Variable):
+				try: return s[t]
+				except: return t
+			return t
+			 
+		"""
 		for count, x in enumerate(t.terms):
-			t.terms[count] = s.get(x,x)
+			if isinstance(x, Function):
+				self.substitute_in_term(x.terms)
+			else:
+				t.terms[count] = s.get(x,x)
 		return t
-
+		"""
 	def substitute_in_clause (self, s : dict, c : Rule) -> Rule:
 		for count, x in enumerate(c.head.terms):
 			c.head.terms[count] = s.get(x,x)
@@ -95,9 +119,38 @@ class Interpreter:
 
 	Please use Python dictionary to represent a subsititution map.
 	'''
+	def unify_helper(self, t1: Term, t2 : Term, theta : dict) -> dict:
+		t1 = self.substitute_in_term(theta, t1)
+		t2 = self.substitute_in_term(theta, t2)
+		if (isinstance(t1, Variable)) and not self.occurs_check(t1, t2):
+			theta[t1] = t2
+			for k in theta.keys():
+				if theta[k] == t1:
+					#theta[k] = self.substitute_in_term(theta, {t1:t2})
+					theta[k] = t2
+			return theta
+		elif (isinstance(t2, Variable)) and not self.occurs_check(t2, t1):
+			theta[t2] = t1
+			for k in theta.keys():
+				if theta[k] == t2:
+					#theta[k] = self.substitute_in_term(theta, {t2:t1})
+					theta[k] = t1
+			return theta
+		elif t1 == t2: return theta
+		elif isinstance(t1, Function) and isinstance(t2, Function):
+			if t1.relation == t2.relation and len(t1.terms) == len(t2.terms):
+				for x, y in zip(t1.terms, t2.terms):
+					theta.update(self.unify_helper(x, y, theta))
+				return theta
+			else:
+				raise Not_unifiable
+		else:
+			raise Not_unifiable
+
 	def unify (self, tt1: Term, tt2: Term) -> dict:
-		s = dict({})
 		
+		s = dict({})
+		"""
 		if type(tt1) is list: t1 = tt1[0]
 		else: t1 = tt1
 		if type(tt2) is list: t2 = tt2[0]
@@ -117,11 +170,13 @@ class Interpreter:
 			else: 
 				raise Not_unifiable
 		elif isinstance(t1, Function) and isinstance(t2, Function):
-			s.update(self.unify( t1.terms[0:], t2.terms[0:] ))
+			s.update( self.unify( t1.terms[0:], t2.terms[0:] ))
 			#reduce(f, self.unify( t1.terms[0:], t2.terms[0:] ))
 			return s
 		else:
 			raise Not_unifiable
+		"""
+
 		"""
 		if isinstance(t1, Variable) or isinstance(t2, Variable):
 			if t1 != t2:
@@ -143,6 +198,7 @@ class Interpreter:
 		else:
 			raise Not_unifiable
 		"""
+		s.update(self.unify_helper(tt1, tt2, s))
 		return s
 
 
@@ -172,12 +228,40 @@ class Interpreter:
 	a logical consequence of the program. See the tests cases (in src/main.py) as examples.
 	'''
 	def nondet_query (self, program : List[Rule], pgoal : List[Term]) -> List[Term]:
-		resolvent = pgoal
-		while resolvent:
-			rGoal = pgoal[random.randint(0,len(resolvent))]
-			self.freshen[program]
-		return []
+		
+		while(True):
+			goal = pgoal.copy()
+			resolvent = goal.copy()
 
+			while resolvent:
+				#chosen_goal = goal[random.randint(0, len(goal)-1)]
+				#rand_rule = program[random.randint(0, len(program)-1)]
+				chosen_goal = resolvent[random.randint(0, len(resolvent)-1)]
+				rand_rule = program[random.randint(0, len(program)-1)]
+				rand_rule = self.freshen(rand_rule)
+
+				try: t = self.unify(chosen_goal, rand_rule.head)
+				except: break
+
+				resolvent.remove(chosen_goal)
+				for term in rand_rule.body.terms: resolvent.append(term)
+				"""
+				for term in resolvent:
+					resolvent.append( self.substitute_in_term(t,term) )
+				for term in goal:
+					goal.append( self.substitute_in_term(t,term) )
+				"""
+				tempR = []
+				tempG = []
+				for term in resolvent:
+					tempR.append(self.substitute_in_term(t,term))
+				for term in goal:
+					tempG.append(self.substitute_in_term(t,term))
+				resolvent = tempR.copy()
+				goal = tempG.copy()
+			if resolvent: continue
+			else: break
+		return goal
 
 	'''
 	Challenge Problem
